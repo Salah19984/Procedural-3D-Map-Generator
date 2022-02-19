@@ -1,6 +1,3 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class MeshGenerator : MonoBehaviour
@@ -12,8 +9,14 @@ public class MeshGenerator : MonoBehaviour
     public int mapheight = 10;
 
     //total size of needed vertices is (mapwidth + 1) * (mapheight + 1) because we always need 2 vertices for 1 quad
-    Vector3[] vertices;
+    private Vector3[] vertices;
     int[] triangles;
+    //for setting the Colors
+    Color[] colors;
+    public Gradient gradient;
+    private float minTerrainHeight;
+    private float maxTerrainHeight;
+
 
     public int seed;
     public int octaves;
@@ -25,6 +28,9 @@ public class MeshGenerator : MonoBehaviour
     private float[,] noiseMap;
     private float[,] fallofmap;
     private float[,] heightmap;
+
+    //mesh Collider
+    MeshCollider collider;
     // Start is called before the first frame update
     void Start()
     {
@@ -33,6 +39,7 @@ public class MeshGenerator : MonoBehaviour
         //meshfilter stores the mesh iself which contains all infos about the shape of our object
         GetComponent<MeshFilter>().mesh = mesh;
         //the meshrenderer is responsible for taking this data and render it so we can actually see it!
+       
 
         noiseMap = new float[mapwidth, mapheight];
         fallofmap = new float[mapwidth, mapheight];
@@ -42,8 +49,12 @@ public class MeshGenerator : MonoBehaviour
 
 
         heightmap = GenerateIslandmap(noiseMap, fallofmap);
-        CreateMesh(heightmap, heightmultiplier);
+        CreateMesh();
         UpdateMesh();
+
+        //setting the collider to the generated mesh
+        GetComponent<MeshCollider>().sharedMesh = mesh;
+
     }
 
     //turns the heightmap into an island shape
@@ -60,32 +71,44 @@ public class MeshGenerator : MonoBehaviour
     }
 
     //filling the arrays with data
-    private void CreateMesh(float[,] heightmap,float heightmultiplier)
+    private void CreateMesh()
     {
         vertices = new Vector3[(mapwidth+1) * (mapheight+1)];
         triangles = new int[mapwidth * mapheight * 6];
+        colors = new Color[vertices.Length];
+
         //index to iterate over the vertices array
         int vertexIndex = 0;
-        
         //from row (xaxis) to column (zAxis)
         for (int z = 0; z < mapheight; z++)
         {
             for (int x = 0; x < mapwidth; x++)
             {
-                float height = (float)heightmap[x, z] * heightmultiplier;
+                float height = heightmap[x, z] * heightmultiplier;
 
-                //float y = Mathf.PerlinNoise(x*.3f, z*.3f)*2f;
+                float y = Mathf.PerlinNoise(x*.3f, z*.3f)*2f;
                 //Y_height = GenerateIslandmap(height);
                 vertices[vertexIndex] = new Vector3(x, height, z);
+
+                //updating the max and min terrainheight for the color gradient
+                if (height > maxTerrainHeight)
+                {
+                    maxTerrainHeight = height;
+                }
+                if(height < minTerrainHeight)
+                {
+                    minTerrainHeight = height;
+                }
+
                 vertexIndex++;
             }
         }
 
         int verts = 0; // always shifts the triangles 1 to the right
         int tris = 0;
-        for(int z  = 0; z< mapheight; z++)
+        for(int z  = 0; z < mapheight-1; z++)
         {
-            for (int x = 0; x < mapwidth; x++)
+            for (int x = 0; x < mapwidth-1; x++)
             {
                 triangles[tris + 0] = verts + 0;
                 triangles[tris + 1] = verts + mapwidth + 1;
@@ -98,6 +121,17 @@ public class MeshGenerator : MonoBehaviour
             }
             verts++;
         }
+
+        for (int i=0 , z = 0; z < mapheight; z++)
+        {
+            for (int x = 0; x < mapwidth; x++)
+            {
+                float height = Mathf.InverseLerp(minTerrainHeight,maxTerrainHeight, vertices[i].y);
+                colors[i] = gradient.Evaluate(height);
+                i++;
+            }
+        }
+
     }
 
     void UpdateMesh()
@@ -105,6 +139,7 @@ public class MeshGenerator : MonoBehaviour
         mesh.Clear();
         mesh.vertices = vertices;
         mesh.triangles = triangles;
+        mesh.colors = colors;
         mesh.RecalculateNormals();
     }
 
