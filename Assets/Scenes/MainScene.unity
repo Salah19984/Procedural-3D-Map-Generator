@@ -372,16 +372,16 @@ MonoBehaviour:
     key1: {r: 0.15508187, g: 0.23318137, b: 0.8018868, a: 1}
     key2: {r: 0.7726459, g: 0.9622642, b: 0.45843717, a: 0}
     key3: {r: 0.120276466, g: 0.509434, b: 0.02971666, a: 0}
-    key4: {r: 0.509434, g: 0.509434, b: 0.509434, a: 0}
-    key5: {r: 1, g: 1, b: 1, a: 0}
+    key4: {r: 0.10651546, g: 0.4716981, b: 0.02002491, a: 0}
+    key5: {r: 0.509434, g: 0.509434, b: 0.509434, a: 0}
     key6: {r: 1, g: 1, b: 1, a: 0}
     key7: {r: 1, g: 1, b: 1, a: 0}
-    ctime0: 328
+    ctime0: 1311
     ctime1: 6554
     ctime2: 9830
-    ctime3: 19661
-    ctime4: 55705
-    ctime5: 65535
+    ctime3: 16384
+    ctime4: 26214
+    ctime5: 49151
     ctime6: 65535
     ctime7: 65535
     atime0: 0
@@ -393,7 +393,7 @@ MonoBehaviour:
     atime6: 0
     atime7: 0
     m_Mode: 0
-    m_NumColorKeys: 6
+    m_NumColorKeys: 7
     m_NumAlphaKeys: 2
   seed: 1
   octaves: 6

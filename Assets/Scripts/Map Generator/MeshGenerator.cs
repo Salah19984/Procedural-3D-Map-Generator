@@ -29,32 +29,25 @@ public class MeshGenerator : MonoBehaviour
     private float[,] fallofmap;
     private float[,] heightmap;
 
-    //mesh Collider
-    MeshCollider collider;
-    // Start is called before the first frame update
     void Start()
     {
-        
         mesh = new Mesh();
         //meshfilter stores the mesh iself which contains all infos about the shape of our object
         GetComponent<MeshFilter>().mesh = mesh;
         //the meshrenderer is responsible for taking this data and render it so we can actually see it!
-       
 
+        //inizializing the arrays for the map
         noiseMap = new float[mapwidth, mapheight];
         fallofmap = new float[mapwidth, mapheight];
         heightmap = new float[mapwidth, mapheight];
         noiseMap = NoiseGenerator.GenerateNoiseMap(mapwidth, mapheight, seed, octaves, scale, lacunarity, offset, persistance);
         fallofmap = FalloffGenerator.GenerateFalloffMap(mapwidth, mapheight);
 
-
         heightmap = GenerateIslandmap(noiseMap, fallofmap);
         CreateMesh();
         UpdateMesh();
-
         //setting the collider to the generated mesh
         GetComponent<MeshCollider>().sharedMesh = mesh;
-
     }
 
     //turns the heightmap into an island shape
@@ -84,28 +77,23 @@ public class MeshGenerator : MonoBehaviour
         {
             for (int x = 0; x < mapwidth; x++)
             {
-                float height = heightmap[x, z] * heightmultiplier;
-
-                float y = Mathf.PerlinNoise(x*.3f, z*.3f)*2f;
-                //Y_height = GenerateIslandmap(height);
-                vertices[vertexIndex] = new Vector3(x, height, z);
-
+                float mapHeight = heightmap[x, z] * heightmultiplier;
+                vertices[vertexIndex] = new Vector3(x, mapHeight, z);
                 //updating the max and min terrainheight for the color gradient
-                if (height > maxTerrainHeight)
+                if (mapHeight > maxTerrainHeight)
                 {
-                    maxTerrainHeight = height;
+                    maxTerrainHeight = mapHeight;
                 }
-                if(height < minTerrainHeight)
+                if(mapHeight < minTerrainHeight)
                 {
-                    minTerrainHeight = height;
+                    minTerrainHeight = mapHeight;
                 }
-
                 vertexIndex++;
             }
         }
-
         int verts = 0; // always shifts the triangles 1 to the right
-        int tris = 0;
+        int tris = 0;  // counter for triangles
+        //form triangles from the vertices always clockwise to not mess up the uvs
         for(int z  = 0; z < mapheight-1; z++)
         {
             for (int x = 0; x < mapwidth-1; x++)
@@ -121,7 +109,6 @@ public class MeshGenerator : MonoBehaviour
             }
             verts++;
         }
-
         for (int i=0 , z = 0; z < mapheight; z++)
         {
             for (int x = 0; x < mapwidth; x++)
@@ -131,7 +118,6 @@ public class MeshGenerator : MonoBehaviour
                 i++;
             }
         }
-
     }
 
     void UpdateMesh()
@@ -143,15 +129,4 @@ public class MeshGenerator : MonoBehaviour
         mesh.RecalculateNormals();
     }
 
-  /*  private void OnDrawGizmos()
-    {
-        if(vertices == null)
-            return;
-
-        for(int i = 0; i < vertices.Length; i++)
-        {
-            Gizmos.DrawSphere(vertices[i], .1f);
-        }
-    }
-  */
 }
