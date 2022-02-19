@@ -2,12 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public  class VegetationGenerator:MonoBehaviour
+public class VegetationGenerator:MonoBehaviour
 {
-
-    public List<Vector3> cubePositions = new List<Vector3>();
-
-
     public static Vector3 ObjectSpawnLocation(List<Vector3> vegetationArea)
     {
         // der Index holt sich einen zuf�lligen Cube auf dem gespawnt wird.
@@ -15,7 +11,7 @@ public  class VegetationGenerator:MonoBehaviour
 
         Vector3 newPos = new Vector3(
             vegetationArea[randomIndex].x,
-            vegetationArea[randomIndex].y+0.5f,
+            vegetationArea[randomIndex].y+0.01f,
             vegetationArea[randomIndex].z
         );
         //Debug.Log("ObjectSpawnPosition: " + "y: "+ newPos.y);
@@ -25,38 +21,26 @@ public  class VegetationGenerator:MonoBehaviour
         return newPos;
     }
 
-
-    public static void SpawnGrass(List<Vector3> vertexPositions, int height)
+    public static void SpawnPlants(List<Vector3> vertexPositions, float height, int numberOfTrees, int numberOfgrass, GameObject grass, GameObject trees)
     {
-        List<Vector3> grassland = new List<Vector3>();
+        List<Vector3> greenland = new List<Vector3>();
         for (int i = 0; i < vertexPositions.Count; i++)
         {
-            if (vertexPositions[i].y < 0.5f * height && vertexPositions[i].y > 0.2f)
+            if (vertexPositions[i].y < 0.42f * height && vertexPositions[i].y > 0.2f * height)
             {
-                grassland.Add(vertexPositions[i]);
+                greenland.Add(vertexPositions[i]);
             }
         }
-        
-        for (int i = 0; i < grassland.Count; i++)
-        {
-            Instantiate(grass, ObjectSpawnLocation(grassland), Quaternion.identity);
-        }
-    }
-
-    public static void SpawnTrees()
-    {
-        List<Vector3> woodland = new List<Vector3>();
-        for (int i = 0; i < cubePositions.Count; i++)
-        {
-            if (cubePositions[i].y < 0.7f * noiseHeight && cubePositions[i].y > 0.3f)
-            {
-                woodland.Add(cubePositions[i]);
-            }
-        }
-
+        //trees spawning
         for (int i = 0; i < numberOfTrees; i++)
         {
-            Instantiate(trees, ObjectSpawnLocation(woodland), Quaternion.identity);
+            Instantiate(trees, ObjectSpawnLocation(greenland), Quaternion.identity);
+        }
+        //grass spawning
+        for (int i = 0; i < numberOfgrass; i++)
+        {
+            Instantiate(grass, ObjectSpawnLocation(greenland), Quaternion.identity);
         }
     }
+
 }

@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public class MeshGenerator : MonoBehaviour
 {
@@ -28,6 +29,12 @@ public class MeshGenerator : MonoBehaviour
     private float[,] noiseMap;
     private float[,] fallofmap;
     private float[,] heightmap;
+    //for Vegetation spawning
+    public List<Vector3> vertexPositions;
+    public GameObject grass;
+    public GameObject trees;
+    public int numberOfTrees;
+    public int numberOfgrass;
 
     void Start()
     {
@@ -48,6 +55,10 @@ public class MeshGenerator : MonoBehaviour
         UpdateMesh();
         //setting the collider to the generated mesh
         GetComponent<MeshCollider>().sharedMesh = mesh;
+
+        vertexPositions = new List<Vector3>(vertices);
+        VegetationGenerator.SpawnPlants(vertexPositions, heightmultiplier,numberOfTrees, numberOfgrass, grass, trees);
+
     }
 
     //turns the heightmap into an island shape
@@ -77,16 +88,16 @@ public class MeshGenerator : MonoBehaviour
         {
             for (int x = 0; x < mapwidth; x++)
             {
-                float mapHeight = heightmap[x, z] * heightmultiplier;
-                vertices[vertexIndex] = new Vector3(x, mapHeight, z);
+                float height = heightmap[x, z] * heightmultiplier;
+                vertices[vertexIndex] = new Vector3(x, height, z);
                 //updating the max and min terrainheight for the color gradient
-                if (mapHeight > maxTerrainHeight)
+                if (height > maxTerrainHeight)
                 {
-                    maxTerrainHeight = mapHeight;
+                    maxTerrainHeight = height;
                 }
-                if(mapHeight < minTerrainHeight)
+                if(height < minTerrainHeight)
                 {
-                    minTerrainHeight = mapHeight;
+                    minTerrainHeight = height;
                 }
                 vertexIndex++;
             }
